@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import type { Data, Layout } from 'plotly.js';
 
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(
@@ -15,8 +16,8 @@ const Plot = dynamic(
 interface ApiResponse {
   solution: string;
   plotData: {
-    x: number[];
-    y: number[];
+    data: Data[];
+    layout: Partial<Layout>;
   };
   wolframData?: unknown;
 }
@@ -28,7 +29,7 @@ interface ApiError {
 export default function Home() {
   const [equation, setEquation] = useState('');
   const [solution, setSolution] = useState('');
-  const [plotData, setPlotData] = useState<any>(null);
+  const [plotData, setPlotData] = useState<ApiResponse['plotData'] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [wolframData, setWolframData] = useState<unknown | null>(null);

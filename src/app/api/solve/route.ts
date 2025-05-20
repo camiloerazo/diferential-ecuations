@@ -51,9 +51,19 @@ function generatePlotData(solution: string, xRange: number[] = [-10, 10]) {
         name: 'Solution',
       }],
       layout: {
-        title: 'Solution Plot',
-        xaxis: { title: 'x' },
-        yaxis: { title: 'y' },
+        title: {
+          text: 'Solution Plot'
+        },
+        xaxis: {
+          title: {
+            text: 'x'
+          }
+        },
+        yaxis: {
+          title: {
+            text: 'y'
+          }
+        },
         showlegend: true,
       }
     };
