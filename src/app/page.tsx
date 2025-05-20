@@ -32,7 +32,6 @@ export default function Home() {
   const [plotData, setPlotData] = useState<ApiResponse['plotData'] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [wolframData, setWolframData] = useState<unknown | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,7 +61,6 @@ export default function Home() {
       const solutionData = data as ApiResponse;
       setSolution(solutionData.solution);
       setPlotData(solutionData.plotData);
-      setWolframData(solutionData.wolframData);
     } catch (err) {
       const error = err as Error;
       setError(error.message || 'An error occurred while solving the equation');

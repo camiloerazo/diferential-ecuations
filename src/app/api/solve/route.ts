@@ -37,7 +37,7 @@ function generatePlotData(solution: string, xRange: number[] = [-10, 10]) {
       try {
         const yValue = solutionFn.evaluate({ x: i });
         y.push(yValue);
-      } catch (e) {
+      } catch {
         y.push(null);
       }
     }
