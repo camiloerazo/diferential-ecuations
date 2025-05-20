@@ -1,6 +1,21 @@
 import { NextResponse } from 'next/server';
 import * as math from 'mathjs';
 
+interface WolframPod {
+  title: string;
+  subpods: Array<{
+    plaintext: string;
+  }>;
+}
+
+interface WolframResponse {
+  queryresult: {
+    success: boolean;
+    error?: boolean;
+    pods?: WolframPod[];
+  };
+}
+
 // Helper function to generate plot data from solution
 function generatePlotData(solution: string, xRange: number[] = [-10, 10]) {
   const x = [];
@@ -49,7 +64,7 @@ function generatePlotData(solution: string, xRange: number[] = [-10, 10]) {
 }
 
 // Helper function to find solution in Wolfram Alpha pods
-function findSolutionInPods(pods: any[]): string | null {
+function findSolutionInPods(pods: WolframPod[]): string | null {
   // Log all available pods for debugging
   console.log('Available pods:', pods.map(pod => pod.title));
 
@@ -128,13 +143,21 @@ export async function POST(request: Request) {
       const wolframUrl = `https://api.wolframalpha.com/v2/query?input=${encodedQuery}&output=json&appid=${apiKey}`;
       
       const response = await fetch(wolframUrl);
-      const data = await response.json();
+      const data = await response.json() as WolframResponse;
       
       console.log('Wolfram Alpha response for query:', query);
       console.log('Response data:', JSON.stringify(data, null, 2));
 
       if (data.queryresult?.success) {
         wolframData = data;
+        // Add null check for pods
+        if (!data.queryresult.pods) {
+          console.log('No pods found in Wolfram Alpha response');
+          return NextResponse.json(
+            { error: 'Could not find solution in Wolfram Alpha response' },
+            { status: 400 }
+          );
+        }
         solution = findSolutionInPods(data.queryresult.pods);
         if (solution) {
           console.log('Found solution:', solution);
@@ -159,11 +182,11 @@ export async function POST(request: Request) {
       solution,
       plotData,
     });
-  } catch (error: any) {
-    console.error('Error in /api/solve:', error);
+  } catch (error) {
+    console.error('Error querying Wolfram Alpha:', error);
     return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred' },
-      { status: 400 }
+      { error: 'Failed to query Wolfram Alpha' },
+      { status: 500 }
     );
   }
 } 

@@ -12,18 +12,32 @@ const Plot = dynamic(
   }
 );
 
+interface ApiResponse {
+  solution: string;
+  plotData: {
+    x: number[];
+    y: number[];
+  };
+  wolframData?: unknown;
+}
+
+interface ApiError {
+  error: string;
+}
+
 export default function Home() {
   const [equation, setEquation] = useState('');
   const [solution, setSolution] = useState('');
   const [plotData, setPlotData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [wolframData, setWolframData] = useState<unknown | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-    
+    setLoading(true);
+
     try {
       console.log('Sending equation:', equation);
       
@@ -37,18 +51,20 @@ export default function Home() {
 
       console.log('Response status:', response.status);
       
-      const data = await response.json();
+      const data = await response.json() as ApiResponse | ApiError;
       console.log('Response data:', data);
       
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to solve equation');
+        throw new Error((data as ApiError).error || 'Failed to solve equation');
       }
 
-      setSolution(data.solution);
-      setPlotData(data.plotData);
-    } catch (err: any) {
-      console.error('Error in handleSubmit:', err);
-      setError(err.message || 'An unexpected error occurred');
+      const solutionData = data as ApiResponse;
+      setSolution(solutionData.solution);
+      setPlotData(solutionData.plotData);
+      setWolframData(solutionData.wolframData);
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message || 'An error occurred while solving the equation');
     } finally {
       setLoading(false);
     }

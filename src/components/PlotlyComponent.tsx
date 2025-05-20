@@ -1,61 +1,53 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import Plotly from 'plotly.js-dist-min';
+import Plot from 'react-plotly.js';
 
-interface PlotlyComponentProps {
-  data: any[];
-  layout: any;
-  config?: any;
-  style?: React.CSSProperties;
+interface PlotData {
+  x: number[];
+  y: number[];
 }
 
-const PlotlyComponent = ({ data, layout, config, style }: PlotlyComponentProps) => {
-  const plotRef = useRef<HTMLDivElement>(null);
+interface PlotlyComponentProps {
+  data: PlotData;
+}
+
+export default function PlotlyComponent({ data }: PlotlyComponentProps) {
+  const plotRef = useRef<Plot>(null);
 
   useEffect(() => {
-    if (!plotRef.current) return;
-
-    // Clean up previous plot
-    Plotly.purge(plotRef.current);
-
-    // Create new plot
-    Plotly.newPlot(plotRef.current, data, layout, {
-      responsive: true,
-      ...config
-    });
-
-    // Handle window resize
-    const handleResize = () => {
-      if (plotRef.current) {
-        Plotly.relayout(plotRef.current, {
-          'xaxis.autorange': true,
-          'yaxis.autorange': true
-        });
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup
+    const currentPlot = plotRef.current;
+    
     return () => {
-      window.removeEventListener('resize', handleResize);
-      if (plotRef.current) {
-        Plotly.purge(plotRef.current);
+      if (currentPlot) {
+        // Cleanup if needed
       }
     };
-  }, [data, layout, config]);
+  }, []);
 
   return (
-    <div 
-      ref={plotRef} 
-      style={{ 
-        width: '100%', 
-        height: '100%',
-        ...style 
-      }} 
-    />
+    <div className="w-full h-[400px]">
+      <Plot
+        ref={plotRef}
+        data={[
+          {
+            x: data.x,
+            y: data.y,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Solution',
+          },
+        ]}
+        layout={{
+          title: 'Solution Plot',
+          xaxis: { title: 'x' },
+          yaxis: { title: 'y' },
+          autosize: true,
+          margin: { l: 50, r: 50, t: 50, b: 50 },
+        }}
+        config={{ responsive: true }}
+        style={{ width: '100%', height: '100%' }}
+      />
+    </div>
   );
-};
-
-export default PlotlyComponent; 
+} 

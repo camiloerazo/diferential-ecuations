@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@types/mathjs": "^9.4.1",
+    "@types/react-plotly.js": "^2.6.3",
     "mathjax": "^3.2.2",
     "mathjs": "^14.4.0",
     "next": "15.3.2",
     "plotly.js-dist-min": "^3.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-plotly.js": "^2.6.0",
     "wolfram-alpha-api": "^0.2.1"
   },
   "devDependencies": {
