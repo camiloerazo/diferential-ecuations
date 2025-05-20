@@ -77,24 +77,24 @@ export default function Home() {
   return (
     <main className="min-h-screen p-8 max-w-4xl mx-auto">
       <h1 className="text-4xl font-bold mb-8 text-center">
-        Differential Equation Solver
+        Solucionador de Ecuaciones Diferenciales
       </h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="equation" className="block text-sm font-medium mb-2">
-            Enter your differential equation:
+            Ingresa tu ecuación diferencial:
           </label>
           <input
             type="text"
             id="equation"
             value={equation}
             onChange={(e) => setEquation(e.target.value)}
-            placeholder="Example: dy/dx = x^2 + y"
+            placeholder="Ejemplo: dy/dx = x^2 + y"
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
           />
           <p className="mt-2 text-sm text-gray-500">
-            Examples: dy/dx = x^2, dy/dx = sin(x), d²y/dx² + dy/dx + y = 0
+            Ejemplos: dy/dx = x^2, dy/dx = sin(x), d²y/dx² + dy/dx + y = 0
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export default function Home() {
           disabled={loading}
           className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
         >
-          {loading ? 'Solving...' : 'Solve Equation'}
+          {loading ? 'Resolviendo...' : 'Resolver Ecuación'}
         </button>
       </form>
 
@@ -115,7 +115,7 @@ export default function Home() {
 
       {solution && (
         <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Solution:</h2>
+          <h2 className="text-2xl font-semibold mb-4">Solución:</h2>
           <div className="p-4 bg-gray-50 rounded-lg">
             <p className="font-mono">{solution}</p>
           </div>
@@ -124,11 +124,26 @@ export default function Home() {
 
       {plotData && (
         <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Plot:</h2>
+          <h2 className="text-2xl font-semibold mb-4">Gráfica:</h2>
           <div className="w-full h-[400px]">
             <Plot
               data={plotData.data}
-              layout={plotData.layout}
+              layout={{
+                ...plotData.layout,
+                title: {
+                  text: 'Gráfica de la Solución'
+                },
+                xaxis: {
+                  title: {
+                    text: 'x'
+                  }
+                },
+                yaxis: {
+                  title: {
+                    text: 'y'
+                  }
+                }
+              }}
               config={{ responsive: true }}
               style={{ width: '100%', height: '100%' }}
             />

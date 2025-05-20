@@ -120,25 +120,24 @@ export async function POST(request: Request) {
     const { equation } = body;
 
     if (!equation) {
-      console.log('No equation provided in request');
+      console.log('No se proporcionó ecuación en la solicitud');
       return NextResponse.json(
-        { error: 'Equation is required' },
+        { error: 'La ecuación es requerida' },
         { status: 400 }
       );
     }
 
-    console.log('Processing equation:', equation);
+    console.log('Procesando ecuación:', equation);
 
     const apiKey = process.env.WOLFRAM_ALPHA_API_KEY;
-    console.log('API Key present:', !!apiKey); // Log whether the key exists (without exposing the actual key)
+    console.log('Clave API presente:', !!apiKey);
     if (!apiKey) {
-      console.log('Wolfram Alpha API key not found in environment variables');
-      console.log('Available environment variables:', Object.keys(process.env).filter(key => !key.includes('KEY'))); // Log available env vars (excluding sensitive ones)
-      throw new Error('Wolfram Alpha API key not configured. Please check your environment variables.');
+      console.log('No se encontró la clave API de Wolfram Alpha en las variables de entorno');
+      console.log('Variables de entorno disponibles:', Object.keys(process.env).filter(key => !key.includes('KEY')));
+      throw new Error('La clave API de Wolfram Alpha no está configurada. Por favor, verifica tus variables de entorno.');
     }
 
     // Format the query for Wolfram Alpha
-    // Try different query formats to increase chances of getting a solution
     const queries = [
       `solve ${equation}`,
       `solve differential equation ${equation}`,
@@ -148,56 +147,53 @@ export async function POST(request: Request) {
     let solution = null;
     let wolframData = null;
 
-    // Try each query format until we get a solution
     for (const query of queries) {
-      console.log('Trying query:', query);
+      console.log('Intentando consulta:', query);
       const encodedQuery = encodeURIComponent(query);
       const wolframUrl = `https://api.wolframalpha.com/v2/query?input=${encodedQuery}&output=json&appid=${apiKey}`;
       
       const response = await fetch(wolframUrl);
       const data = await response.json() as WolframResponse;
       
-      console.log('Wolfram Alpha response for query:', query);
-      console.log('Response data:', JSON.stringify(data, null, 2));
+      console.log('Respuesta de Wolfram Alpha para la consulta:', query);
+      console.log('Datos de respuesta:', JSON.stringify(data, null, 2));
 
       if (data.queryresult?.success) {
         wolframData = data;
-        // Add null check for pods
         if (!data.queryresult.pods) {
-          console.log('No pods found in Wolfram Alpha response');
+          console.log('No se encontraron pods en la respuesta de Wolfram Alpha');
           return NextResponse.json(
-            { error: 'Could not find solution in Wolfram Alpha response' },
+            { error: 'No se pudo encontrar la solución en la respuesta de Wolfram Alpha' },
             { status: 400 }
           );
         }
         solution = findSolutionInPods(data.queryresult.pods);
         if (solution) {
-          console.log('Found solution:', solution);
+          console.log('Solución encontrada:', solution);
           break;
         }
       }
     }
 
     if (!solution) {
-      console.error('No solution found in any Wolfram Alpha response');
-      // If we have the Wolfram data, include it in the error for debugging
+      console.error('No se encontró solución en ninguna respuesta de Wolfram Alpha');
       if (wolframData) {
-        console.error('Wolfram Alpha response data:', JSON.stringify(wolframData, null, 2));
+        console.error('Datos de respuesta de Wolfram Alpha:', JSON.stringify(wolframData, null, 2));
       }
-      throw new Error('Could not find a solution for this equation. Please try a different format or a simpler equation.');
+      throw new Error('No se pudo encontrar una solución para esta ecuación. Por favor, intenta con un formato diferente o una ecuación más simple.');
     }
 
     const plotData = generatePlotData(solution);
-    console.log('Generated plot data');
+    console.log('Datos de la gráfica generados');
 
     return NextResponse.json({
       solution,
       plotData,
     });
   } catch (error) {
-    console.error('Error querying Wolfram Alpha:', error);
+    console.error('Error al consultar Wolfram Alpha:', error);
     return NextResponse.json(
-      { error: 'Failed to query Wolfram Alpha' },
+      { error: 'Error al consultar Wolfram Alpha' },
       { status: 500 }
     );
   }
