@@ -41,7 +41,12 @@ export default function Home() {
     try {
       console.log('Sending equation:', equation);
       
-      const response = await fetch('/api/solve', {
+      // Use the full URL in production, relative URL in development
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? `${window.location.origin}/api/solve`
+        : '/api/solve';
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

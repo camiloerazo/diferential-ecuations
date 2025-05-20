@@ -130,9 +130,11 @@ export async function POST(request: Request) {
     console.log('Processing equation:', equation);
 
     const apiKey = process.env.WOLFRAM_ALPHA_API_KEY;
+    console.log('API Key present:', !!apiKey); // Log whether the key exists (without exposing the actual key)
     if (!apiKey) {
       console.log('Wolfram Alpha API key not found in environment variables');
-      throw new Error('Wolfram Alpha API key not configured');
+      console.log('Available environment variables:', Object.keys(process.env).filter(key => !key.includes('KEY'))); // Log available env vars (excluding sensitive ones)
+      throw new Error('Wolfram Alpha API key not configured. Please check your environment variables.');
     }
 
     // Format the query for Wolfram Alpha
