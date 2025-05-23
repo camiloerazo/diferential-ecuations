@@ -10,6 +10,7 @@ interface ApiResponse {
     url: string;
     alt: string;
   } | null;
+  odeClassification?: string | null;
 }
 
 interface SolveResponse {
@@ -61,7 +62,7 @@ export default function Home() {
       const result: SolveResponse = {
         solution: data.solution,
         plotImage: data.plotImage || null,
-        odeClassification: (data as any).odeClassification || null, // ✅ Updated line
+        odeClassification: data.odeClassification || null,
       };
 
       setResult(result);
@@ -166,11 +167,14 @@ export default function Home() {
           <div className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Gráfica:</h2>
             <div className="flex justify-center">
-              <img
+              <Image
                 src={result.plotImage.url}
                 alt={result.plotImage.alt}
+                width={800}
+                height={600}
                 className="max-w-full h-auto border rounded shadow-lg"
                 style={{ maxHeight: '600px' }}
+                priority
               />
             </div>
             <div className="mt-4 text-center text-gray-600">
