@@ -147,12 +147,11 @@ export default function Home() {
           <div className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Gráfica:</h2>
             <div className="flex justify-center">
-              <Image
+              <img
                 src={plotImage.url}
                 alt={plotImage.alt}
-                width={800}
-                height={600}
                 className="max-w-full h-auto border rounded shadow-lg"
+                style={{ maxHeight: '600px' }}
               />
             </div>
             <div className="mt-4 text-center text-gray-600">

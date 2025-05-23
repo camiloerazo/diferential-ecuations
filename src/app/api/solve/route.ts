@@ -59,7 +59,7 @@ function findSolutionInPods(pods: WolframPod[]): string | null {
 }
 
 // Helper function to find plot in Wolfram Alpha pods
-function findPlotInPods(pods: WolframPod[]): { url: string; alt: string } | null {
+async function findPlotInPods(pods: WolframPod[]): Promise<{ url: string; alt: string } | null> {
   // Try to find a plot in the pods, preferring particular solutions over slope fields
   const plotPods = pods.filter(pod => 
     pod.title === 'Plots of the solution' || 
@@ -75,10 +75,18 @@ function findPlotInPods(pods: WolframPod[]): { url: string; alt: string } | null
   );
 
   if (particularSolution?.subpods?.[0]?.img) {
-    return {
-      url: particularSolution.subpods[0].img.src,
-      alt: particularSolution.subpods[0].img.alt || particularSolution.title
-    };
+    try {
+      const response = await fetch(particularSolution.subpods[0].img.src);
+      const arrayBuffer = await response.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      return {
+        url: `data:image/png;base64,${base64}`,
+        alt: particularSolution.subpods[0].img.alt || particularSolution.title
+      };
+    } catch (error) {
+      console.error('Error fetching plot image:', error);
+      return null;
+    }
   }
 
   // If no particular solution, try to find a solution family plot
@@ -88,10 +96,18 @@ function findPlotInPods(pods: WolframPod[]): { url: string; alt: string } | null
   );
 
   if (solutionFamily?.subpods?.[0]?.img) {
-    return {
-      url: solutionFamily.subpods[0].img.src,
-      alt: solutionFamily.subpods[0].img.alt || solutionFamily.title
-    };
+    try {
+      const response = await fetch(solutionFamily.subpods[0].img.src);
+      const arrayBuffer = await response.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      return {
+        url: `data:image/png;base64,${base64}`,
+        alt: solutionFamily.subpods[0].img.alt || solutionFamily.title
+      };
+    } catch (error) {
+      console.error('Error fetching plot image:', error);
+      return null;
+    }
   }
 
   // Finally, fall back to slope field if nothing else is available
@@ -101,10 +117,18 @@ function findPlotInPods(pods: WolframPod[]): { url: string; alt: string } | null
   );
 
   if (slopeField?.subpods?.[0]?.img) {
-    return {
-      url: slopeField.subpods[0].img.src,
-      alt: slopeField.subpods[0].img.alt || slopeField.title
-    };
+    try {
+      const response = await fetch(slopeField.subpods[0].img.src);
+      const arrayBuffer = await response.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      return {
+        url: `data:image/png;base64,${base64}`,
+        alt: slopeField.subpods[0].img.alt || slopeField.title
+      };
+    } catch (error) {
+      console.error('Error fetching plot image:', error);
+      return null;
+    }
   }
 
   return null;
@@ -178,7 +202,7 @@ export async function POST(request: Request) {
           continue;
         }
         solution = findSolutionInPods(data.queryresult.pods);
-        plotImage = findPlotInPods(data.queryresult.pods);
+        plotImage = await findPlotInPods(data.queryresult.pods);
         if (solution) {
           console.log('Solución encontrada:', solution);
           break;
