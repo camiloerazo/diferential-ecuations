@@ -1,17 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import dynamic from 'next/dynamic';
 import Image from 'next/image';
-
-// Dynamically import Plotly to avoid SSR issues
-const DynamicPlot = dynamic(
-  () => import('@/components/PlotlyComponent'),
-  { 
-    ssr: false,
-    loading: () => <div>Loading plot...</div>
-  }
-);
 
 interface ApiResponse {
   solution: string;
@@ -20,10 +10,6 @@ interface ApiResponse {
     url: string;
     alt: string;
   } | null;
-}
-
-interface ApiError {
-  error: string;
 }
 
 export default function Home() {
