@@ -12,20 +12,28 @@ interface ApiResponse {
   } | null;
 }
 
+interface SolveResponse {
+  solution: string;
+  plotImage: {
+    url: string;
+    alt: string;
+  } | null;
+  odeClassification: string | null;
+  error?: string;
+}
+
 export default function Home() {
   const [equation, setEquation] = useState('');
   const [initialCondition, setInitialCondition] = useState('');
-  const [solution, setSolution] = useState<string | null>(null);
+  const [result, setResult] = useState<SolveResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [plotImage, setPlotImage] = useState<{ url: string; alt: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    setSolution(null);
-    setPlotImage(null);
+    setResult(null);
 
     try {
       console.log('Sending equation:', equation);
@@ -50,12 +58,13 @@ export default function Home() {
         return;
       }
 
-      setSolution(data.solution);
-      if (data.plotImage) {
-        setPlotImage(data.plotImage);
-      } else {
-        setError('No se pudo generar la gráfica para esta solución');
-      }
+      const result: SolveResponse = {
+        solution: data.solution,
+        plotImage: data.plotImage || null,
+        odeClassification: (data as any).odeClassification || null, // ✅ Updated line
+      };
+
+      setResult(result);
     } catch (error) {
       console.error('Error:', error);
       setError('Error al procesar la ecuación');
@@ -134,22 +143,32 @@ export default function Home() {
           </div>
         )}
 
-        {solution && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Solución:</h2>
-            <div className="p-4 bg-gray-50 rounded">
-              <p className="text-lg text-gray-800 dark:text-gray-800">{solution}</p>
+        {result && (
+          <>
+            {result.odeClassification && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold mb-4">Clasificación:</h2>
+                <div className="p-4 bg-gray-50 rounded">
+                  <p className="text-lg text-gray-800 dark:text-gray-800">{result.odeClassification}</p>
+                </div>
+              </div>
+            )}
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">Solución:</h2>
+              <div className="p-4 bg-gray-50 rounded">
+                <p className="text-lg text-gray-800 dark:text-gray-800">{result.solution}</p>
+              </div>
             </div>
-          </div>
+          </>
         )}
 
-        {plotImage && (
+        {result?.plotImage && (
           <div className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Gráfica:</h2>
             <div className="flex justify-center">
               <img
-                src={plotImage.url}
-                alt={plotImage.alt}
+                src={result.plotImage.url}
+                alt={result.plotImage.alt}
                 className="max-w-full h-auto border rounded shadow-lg"
                 style={{ maxHeight: '600px' }}
               />

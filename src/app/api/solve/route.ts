@@ -18,6 +18,7 @@ interface WolframResponse {
     success: boolean;
     error?: boolean;
     pods?: WolframPod[];
+    numpods?: number;
   };
 }
 
@@ -60,25 +61,45 @@ function findSolutionInPods(pods: WolframPod[]): string | null {
 
 // Helper function to find plot in Wolfram Alpha pods
 async function findPlotInPods(pods: WolframPod[]): Promise<{ url: string; alt: string } | null> {
+  console.log('Searching for plots in pods. Available pods:', pods.map(pod => ({
+    title: pod.title,
+    hasImage: pod.subpods?.[0]?.img ? true : false
+  })));
+
   // Try to find a plot in the pods, preferring particular solutions over slope fields
   const plotPods = pods.filter(pod => 
     pod.title === 'Plots of the solution' || 
     pod.title === 'Plots of sample individual solution' || 
     pod.title === 'Sample solution family' ||
-    pod.title === 'Slope field'
+    pod.title === 'Slope field' ||
+    pod.title === 'Plot' ||  // Add more possible plot titles
+    pod.title === 'Solution plot' ||
+    pod.title === 'Solution curves'
   );
+
+  console.log('Found potential plot pods:', plotPods.map(pod => pod.title));
 
   // First try to find a particular solution plot (with initial condition)
   const particularSolution = plotPods.find(pod => 
-    (pod.title === 'Plots of the solution' || pod.title === 'Plots of sample individual solution') && 
+    (pod.title === 'Plots of the solution' || 
+     pod.title === 'Plots of sample individual solution' ||
+     pod.title === 'Plot' ||
+     pod.title === 'Solution plot') && 
     pod.subpods?.[0]?.img?.src
   );
 
   if (particularSolution?.subpods?.[0]?.img) {
+    console.log('Found particular solution plot:', particularSolution.title);
     try {
+      console.log('Fetching image from:', particularSolution.subpods[0].img.src);
       const response = await fetch(particularSolution.subpods[0].img.src);
+      if (!response.ok) {
+        console.error('Failed to fetch image:', response.status, response.statusText);
+        return null;
+      }
       const arrayBuffer = await response.arrayBuffer();
       const base64 = Buffer.from(arrayBuffer).toString('base64');
+      console.log('Successfully converted image to base64');
       return {
         url: `data:image/png;base64,${base64}`,
         alt: particularSolution.subpods[0].img.alt || particularSolution.title
@@ -91,15 +112,23 @@ async function findPlotInPods(pods: WolframPod[]): Promise<{ url: string; alt: s
 
   // If no particular solution, try to find a solution family plot
   const solutionFamily = plotPods.find(pod => 
-    pod.title === 'Sample solution family' && 
+    (pod.title === 'Sample solution family' || 
+     pod.title === 'Solution curves') && 
     pod.subpods?.[0]?.img?.src
   );
 
   if (solutionFamily?.subpods?.[0]?.img) {
+    console.log('Found solution family plot:', solutionFamily.title);
     try {
+      console.log('Fetching image from:', solutionFamily.subpods[0].img.src);
       const response = await fetch(solutionFamily.subpods[0].img.src);
+      if (!response.ok) {
+        console.error('Failed to fetch image:', response.status, response.statusText);
+        return null;
+      }
       const arrayBuffer = await response.arrayBuffer();
       const base64 = Buffer.from(arrayBuffer).toString('base64');
+      console.log('Successfully converted image to base64');
       return {
         url: `data:image/png;base64,${base64}`,
         alt: solutionFamily.subpods[0].img.alt || solutionFamily.title
@@ -117,10 +146,17 @@ async function findPlotInPods(pods: WolframPod[]): Promise<{ url: string; alt: s
   );
 
   if (slopeField?.subpods?.[0]?.img) {
+    console.log('Found slope field plot:', slopeField.title);
     try {
+      console.log('Fetching image from:', slopeField.subpods[0].img.src);
       const response = await fetch(slopeField.subpods[0].img.src);
+      if (!response.ok) {
+        console.error('Failed to fetch image:', response.status, response.statusText);
+        return null;
+      }
       const arrayBuffer = await response.arrayBuffer();
       const base64 = Buffer.from(arrayBuffer).toString('base64');
+      console.log('Successfully converted image to base64');
       return {
         url: `data:image/png;base64,${base64}`,
         alt: slopeField.subpods[0].img.alt || slopeField.title
@@ -131,6 +167,16 @@ async function findPlotInPods(pods: WolframPod[]): Promise<{ url: string; alt: s
     }
   }
 
+  console.log('No suitable plot found in any of the pods');
+  return null;
+}
+
+// Helper function to find ODE classification in Wolfram Alpha pods
+function findODEClassification(pods: WolframPod[]): string | null {
+  const classificationPod = pods.find(pod => pod.title === 'ODE classification');
+  if (classificationPod?.subpods?.[0]?.plaintext) {
+    return classificationPod.subpods[0].plaintext;
+  }
   return null;
 }
 
@@ -183,17 +229,32 @@ export async function POST(request: Request) {
     let solution = null;
     let wolframData = null;
     let plotImage = null;
+    let odeClassification = null;
 
     for (const query of queries) {
       console.log('Intentando consulta:', query);
       const encodedQuery = encodeURIComponent(query);
-      const wolframUrl = `https://api.wolframalpha.com/v2/query?input=${encodedQuery}&output=json&appid=${apiKey}`;
+      const wolframUrl = `https://api.wolframalpha.com/v2/query?input=${encodedQuery}&output=json&appid=${apiKey}&format=image,plaintext`;
+      
+      console.log('URL de la consulta:', wolframUrl);
       
       const response = await fetch(wolframUrl);
       const data = await response.json() as WolframResponse;
       
-      console.log('Respuesta de Wolfram Alpha para la consulta:', query);
-      console.log('Datos de respuesta:', JSON.stringify(data, null, 2));
+      // Detailed logging of the response
+      console.log('=== RESPUESTA DETALLADA DE WOLFRAM ALPHA ===');
+      console.log('Query:', query);
+      console.log('Success:', data.queryresult?.success);
+      console.log('Error:', data.queryresult?.error);
+      console.log('Number of pods:', data.queryresult?.numpods);
+      console.log('Available pods:', data.queryresult?.pods?.map(pod => ({
+        title: pod.title,
+        hasImage: pod.subpods?.[0]?.img ? true : false,
+        hasPlaintext: pod.subpods?.[0]?.plaintext ? true : false,
+        plaintext: pod.subpods?.[0]?.plaintext
+      })));
+      console.log('Full response:', JSON.stringify(data, null, 2));
+      console.log('===========================================');
 
       if (data.queryresult?.success) {
         wolframData = data;
@@ -203,9 +264,48 @@ export async function POST(request: Request) {
         }
         solution = findSolutionInPods(data.queryresult.pods);
         plotImage = await findPlotInPods(data.queryresult.pods);
+        odeClassification = findODEClassification(data.queryresult.pods);
         if (solution) {
           console.log('Solución encontrada:', solution);
+          if (!plotImage) {
+            console.log('No se pudo encontrar una gráfica para la solución');
+          }
           break;
+        }
+      }
+    }
+
+    // If we have a solution but no plot, try one more time with a specific plot request
+    if (solution && !plotImage) {
+      console.log('Intentando obtener gráfica de familia de soluciones');
+      const plotQuery = `plot family of solutions for ${equation}`;
+      const encodedQuery = encodeURIComponent(plotQuery);
+      const wolframUrl = `https://api.wolframalpha.com/v2/query?input=${encodedQuery}&output=json&appid=${apiKey}&format=image,plaintext`;
+      
+      console.log('URL de la consulta de gráfica:', wolframUrl);
+      
+      const response = await fetch(wolframUrl);
+      const data = await response.json() as WolframResponse;
+      
+      // Detailed logging for the plot request
+      console.log('=== RESPUESTA DETALLADA DE WOLFRAM ALPHA (PLOT) ===');
+      console.log('Query:', plotQuery);
+      console.log('Success:', data.queryresult?.success);
+      console.log('Error:', data.queryresult?.error);
+      console.log('Number of pods:', data.queryresult?.numpods);
+      console.log('Available pods:', data.queryresult?.pods?.map(pod => ({
+        title: pod.title,
+        hasImage: pod.subpods?.[0]?.img ? true : false,
+        hasPlaintext: pod.subpods?.[0]?.plaintext ? true : false,
+        plaintext: pod.subpods?.[0]?.plaintext
+      })));
+      console.log('Full response:', JSON.stringify(data, null, 2));
+      console.log('=================================================');
+
+      if (data.queryresult?.success && data.queryresult.pods) {
+        plotImage = await findPlotInPods(data.queryresult.pods);
+        if (plotImage) {
+          console.log('Gráfica de familia de soluciones encontrada');
         }
       }
     }
@@ -224,7 +324,8 @@ export async function POST(request: Request) {
       plotImage: plotImage ? {
         url: plotImage.url,
         alt: plotImage.alt
-      } : null
+      } : null,
+      odeClassification
     });
   } catch (error) {
     console.error('Error al consultar Wolfram Alpha:', error);
