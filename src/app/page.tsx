@@ -178,7 +178,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <p className="text-sm">
             Integrantes: 
-            <span className="mx-2">Juan Camilo Erazo</span> -
+            <span className="mx-2">Programador: Juan Camilo Erazo</span> -
             <span className="mx-2">Eiler Fernando Rosero</span> -
             <span className="mx-2">Mauricio Ordoñez</span>
           </p>
