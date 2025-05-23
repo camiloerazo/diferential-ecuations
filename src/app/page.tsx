@@ -3,10 +3,9 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import type { Data, Layout, ScatterData } from 'plotly.js';
 
 // Dynamically import Plotly to avoid SSR issues
-const Plot = dynamic(
+const DynamicPlot = dynamic(
   () => import('@/components/PlotlyComponent'),
   { 
     ssr: false,

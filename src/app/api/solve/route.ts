@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import * as math from 'mathjs';
 
 interface WolframPod {
   title: string;
