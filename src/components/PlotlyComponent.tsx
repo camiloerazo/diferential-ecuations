@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Plot from 'react-plotly.js';
-import type { Data, Layout, ScatterData } from 'plotly.js';
+import type { Layout, ScatterData } from 'plotly.js';
 
 interface PlotlyComponentProps {
   data: ScatterData[];

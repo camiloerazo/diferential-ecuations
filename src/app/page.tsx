@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import type { Data, Layout, ScatterData } from 'plotly.js';
 
 // Dynamically import Plotly to avoid SSR issues
@@ -84,10 +85,12 @@ export default function Home() {
         {/* University and Teacher Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center">
-            <img 
+            <Image 
               src="/logou.png" 
               alt="Logo Universidad Cooperativa de Colombia" 
-              className="h-16 w-auto mr-4"
+              width={64}
+              height={64}
+              className="mr-4"
             />
             <div>
               <p className="text-lg font-semibold">Universidad Cooperativa de Colombia</p>
@@ -159,9 +162,11 @@ export default function Home() {
           <div className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Gráfica:</h2>
             <div className="flex justify-center">
-              <img
+              <Image
                 src={plotImage.url}
                 alt={plotImage.alt}
+                width={800}
+                height={600}
                 className="max-w-full h-auto border rounded shadow-lg"
               />
             </div>
