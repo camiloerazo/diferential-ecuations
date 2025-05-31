@@ -1,0 +1,170 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Tema y colores
+\usetheme{Madrid}
+\usecolortheme{whale}
+\setbeamertemplate{navigation symbols}{}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{Solucionador de Ecuaciones Diferenciales}
+\subtitle{Una Aplicación Web Moderna}
+\author{Juan Camilo Erazo}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{¿Qué es esta Aplicación?}
+    \begin{itemize}
+        \item Una herramienta web especializada en resolver ecuaciones diferenciales
+        \item Permite visualizar soluciones de manera interactiva
+        \item Diseñada para estudiantes, profesores y profesionales
+        \item Interfaz intuitiva y fácil de usar
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Características Principales}
+    \begin{itemize}
+        \item Solución de ecuaciones diferenciales en tiempo real
+        \item Soporte para ecuaciones de primer y segundo orden
+        \item Visualización interactiva de soluciones
+        \item Notación matemática profesional
+        \item Interfaz moderna y responsiva
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Tecnologías Utilizadas}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \textbf{Frontend}
+        \begin{itemize}
+            \item \textbf{Next.js 15.3.2}: Framework React moderno
+            \item \textbf{TypeScript}: Tipado estático
+            \item \textbf{Tailwind CSS}: Framework CSS
+            \item \textbf{React 19}: Biblioteca UI
+        \end{itemize}
+        
+        \column{0.5\textwidth}
+        \textbf{Herramientas Matemáticas}
+        \begin{itemize}
+            \item \textbf{Wolfram Alpha API}: Motor matemático
+            \item \textbf{Math.js}: Cálculos matemáticos
+            \item \textbf{Plotly.js}: Visualización
+            \item \textbf{MathJax}: Notación matemática
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Capacidades Técnicas}
+    \begin{itemize}
+        \item Resolución de ecuaciones diferenciales complejas
+        \item Visualización de gráficos interactivos
+        \item Soporte para múltiples formatos de entrada
+        \item Procesamiento en tiempo real
+        \item Integración con Wolfram Alpha para cálculos precisos
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Ejemplos de Uso}
+    La aplicación puede resolver ecuaciones como:
+    \begin{align*}
+        \frac{dy}{dx} &= x^2 \\
+        \frac{dy}{dx} &= \sin(x) \\
+        \frac{d^2y}{dx^2} + \frac{dy}{dx} + y &= 0
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Ventajas Competitivas}
+    \begin{itemize}
+        \item Interfaz de usuario moderna y amigable
+        \item Resultados precisos y confiables
+        \item Visualización interactiva de soluciones
+        \item Fácil de usar para usuarios no técnicos
+        \item Despliegue sencillo en Vercel
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Arquitectura Técnica}
+    \begin{itemize}
+        \item Aplicación web de una sola página (SPA)
+        \item API RESTful para comunicación con Wolfram Alpha
+        \item Renderizado del lado del cliente
+        \item Optimizada para rendimiento
+        \item Diseño responsivo para todos los dispositivos
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Tecnologías de Desarrollo}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{itemize}
+            \item \textbf{ESLint}: Linting de código
+            \item \textbf{TypeScript}: Tipado estático
+            \item \textbf{Git}: Control de versiones
+        \end{itemize}
+        
+        \column{0.5\textwidth}
+        \begin{itemize}
+            \item \textbf{Vercel}: Plataforma de despliegue
+            \item \textbf{npm}: Gestión de dependencias
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Próximos Pasos}
+    \begin{itemize}
+        \item Expansión de tipos de ecuaciones soportadas
+        \item Mejoras en la visualización
+        \item Integración con más APIs matemáticas
+        \item Optimización de rendimiento
+        \item Nuevas características de exportación
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Contacto}
+    \begin{center}
+        \large
+        Desarrollado por Juan Camilo Erazo\\
+        \vspace{0.5cm}
+        Licencia MIT
+    \end{center}
+\end{frame}
+
+\end{document} 
